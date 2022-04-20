@@ -1,9 +1,11 @@
-from preprocess.utils import *
+from NLP_project.user_location.preprocess.utils import *
 from tqdm import tqdm
 from nltk.tokenize import TweetTokenizer
 from gensim.models.phrases import Phrases, Phraser
 import pandas as pd
+import logging
 
+logging.basicConfig(filename='preprocessor.log', level=logging.DEBUG)
 
 class DataPreprocessor():
     def __init__(self, data_path:str, column: str):
@@ -25,6 +27,7 @@ class DataPreprocessor():
         """
         tokenizer = TweetTokenizer()
         tokenized_sentences = []
+        logging.info("tokenizing")
         for sentence in tqdm(self.corpus):
             tokens = tokenizer.tokenize(sentence)
             if url :
@@ -37,6 +40,7 @@ class DataPreprocessor():
                 tokens = remove_mentions(tokens)
             tokens = list(map(lambda x: x.lower(), tokens))
             tokenized_sentences.append(tokens)
+        logging.info("Phrasing")
         phrases = Phrases(tokenized_sentences, threshold=threshold)
         phraser = Phraser(phrases)
         clean_corpus = []
@@ -54,11 +58,14 @@ class DataPreprocessor():
         Returns:
             _type_: _description_
         """
-        df = self.data
+        
+        logging.info("****PREPROCESSING COLUMN {} OF TWEETS DF".format(self.column))
+        df = self.data.copy()
         df["cleaned_{}".format(self.column)] = self.preprocess
         if detect_language_:
+            logging.info("language detection")
             tqdm.pandas()
-            df["language"] = df["cleaned_tweets"].progress_apply(lambda x : detect_language(x))
+            df["language"] = df["cleaned_{}".format(self.column)].progress_apply(lambda x : detect_language(x))
             df = df[df['language'] == language]
             df = df.drop(["language"],axis=1)
         return df
