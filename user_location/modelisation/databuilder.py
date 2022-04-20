@@ -1,6 +1,6 @@
 import numpy as np 
 from NLP_project.user_location.modelisation.torch_dataset import TweetDataset
-from NLP_project.user_location.modelisation.config import args
+from NLP_project.user_location.config import args
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import RandomOverSampler
