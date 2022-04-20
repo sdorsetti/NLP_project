@@ -46,7 +46,7 @@ class DataPreprocessor():
         clean_corpus = []
         for sentence in tokenized_sentences:
             clean_corpus.append(phraser[sentence])
-        return clean_corpus
+        return " ".join(clean_corpus)
     
     def get_df(self, language='en', detect_language_=True):
         """_summary_
