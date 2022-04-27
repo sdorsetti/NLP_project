@@ -1,10 +1,13 @@
 from NLP_project.user_location.labellisation.dic_label import d
 from NLP_project.user_location.labellisation.utils import coocurrence, apply_ner
-from NLP_project.user_location.config import args
+from NLP_project.user_location.config import structure_dict
 from NLP_project.user_location.preprocess.preprocess import DataPreprocessor
-
+import os
+import json
 import pandas as pd
 import logging
+from nltk.tokenize import TweetTokenizer
+from geopy.geocoders import Nominatim
 
 logging.basicConfig(filename='labelizer.log', level=logging.DEBUG)
 
@@ -47,7 +50,7 @@ class Labelizer():
         logging.info("{} % of false locations **** Final size of df {}".format(df.shape[0]/shape*100, df.shape[0]))
         return df
 
-    def label_data(self,d,ccr_edge,string_,threshold=3):
+    def label_data(self,string_,d,history):
         """_summary_
 
         Args:
@@ -59,39 +62,37 @@ class Labelizer():
         Returns:
             _type_: _description_
         """
-        
 
-        #if the name of the region is one of the tokens, it can be considered as the label 
-        l_regions = [item for sublist in [d[r] for r in list(d.keys())] for item in sublist]
-        for region in l_regions:
-            if string_ == region:
-                return [k for k,v in d.items() if region in v][0]
-        for label in list(d.keys()):
-            if string_ == label:
-                return label
+        try : 
+          label = history[string_] 
+          return label
+        except:
+          geolocator = Nominatim(user_agent="MyApp")
+          try : 
+            location = geolocator.geocode(string_)
+          except : 
+            location = None
+          
+          
+          tok = TweetTokenizer()
 
-
-        ccr = ccr_edge[string_]
-        #ccr is a dict that has often associated words as keys and the weight as value
-
-        l_ccr2 = []
-        for k1, e in ccr.items():
-          l_ccr2.append({k1:w for w in e.values() if w > threshold})
-
-        l_linked = [item for sublist in [list(a.keys()) for a in l_ccr2] for item in sublist] 
-
-        l_final = []
-        for region in list(d.keys()):
-        #region is our labels
-        #we check if there is an intersection between our hand-made regions associated to the label. 
-            if len(list(set(d[region]) & set(l_linked))) > 0:
-                l_final.append(region)
-        #we can therefore have two labels, if two contradictory information were found in the localization, for example "London, Ontario"
-        
-        if len(l_final) ==1: 
-            return l_final[0]
+          if location == None: 
+            return "Unknown"
+          else:
+            location = location[-2].split(',')[-1].lower()
+            location = tok.tokenize(location)[0]
+            
+            final = [label for label, region in d.items() if location in region]
+            if len(final)== 1: 
+              history[string_] = final[0]
+              return final[0]
+            elif len(final) == 0:
+              return "Location Not In Dic"
+            else : 
+              return "Multiple Location"
+       
     
-    def get_df(self, d = d,threshold=3, to_csv=False):
+    def get_df(self, to_csv=True,d = d):
         """
 
         Args:
@@ -108,16 +109,21 @@ class Labelizer():
         ner = self.apply_ner_
         df = self.drop_unexistent_locations(ner)
 
-        ccr = self.create_coocur_edges_(ner)
-        d = self.extend_d(d,ccr)
+        path = structure_dict["output_path"]
+        if os.path.exists(path): 
+            with open(f"{path}history.json") as f:
+                history = json.load(f)
+        else : 
+            history = {}            
 
         logging.info("LABELLISATION")
-        df["label"] = df["ner"].progress_apply(lambda x : self.label_data(d,ccr,x[-1], threshold=threshold))
+        df["label"] = df["ner"].progress_apply(lambda x : self.label_data(x[-1], d, history))
         df = df.drop(["ner"], axis=1)
 
         shape = df.shape[0]
-        df = df.dropna(subset = ["label"])
+        df = df[df["label"].isin(list(d.keys()))]
+
         logging.info("{} % of unlabelled data **** Final size of df {}".format((1 - (df.shape[0]/shape))*100, df.shape[0]))  
         if to_csv: 
-            df.to_csv(args["output_path"] + "preprocessed_df.csv", index=False)
+            df.to_csv(structure_dict["path_to_csv"] + "labellized_df.csv", index=False)
         return df

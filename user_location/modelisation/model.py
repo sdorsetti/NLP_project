@@ -1,10 +1,8 @@
 import torch
 import torch.nn as nn
-def get_pretrained_vectors(path:str):
-    return None
 
 class TweetModel(nn.Module):
-    def __init__(self,args):
+    def __init__(self,args, pretrained_vectors):
         """_summary_
 
         Args:
@@ -14,7 +12,6 @@ class TweetModel(nn.Module):
             pretrained_vectors (_type_, optional): _description_. Defaults to None.
         """
         super(TweetModel, self).__init__()
-        pretrained_vectors=  get_pretrained_vectors(args["pretrained_vectors_path"])
         self.ebd = torch.nn.Embedding.from_pretrained(pretrained_vectors, freeze=True)
         self.hidden_linear_layer = torch.nn.Linear(args["hidden_dim"], args["hidden_dim"], bias=True)
         self.hidden_linear_layer2 = torch.nn.Linear(args["hidden_dim"], 1000, bias=True)

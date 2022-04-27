@@ -6,11 +6,18 @@ import torch.optim as optim
 import json
 from collections import Counter
 
-from modelisation.config import args
+from typer import Exit
+
+from modelisation.config import structure_dict, params_model
 from modelisation.databuilder import *
 from modelisation.model import TweetModel
 
-def train(model, train_loader,optimizer, ep, args, device):
+from NLP_project.user_location.modelisation.utils import open_pretrained_vectors, plot_losses
+
+import logging
+import os
+
+def train(model, train_loader,optimizer, ep, params, device):
 
     """_summary_
 
@@ -27,11 +34,11 @@ def train(model, train_loader,optimizer, ep, args, device):
         
         batch = {'text': batch['text'].to(device), 'label': batch['label'].to(device)}
         optimizer.zero_grad()
-        
         logits = model(batch['text'])
 
         b_counter = Counter(batch['label'].detach().cpu().tolist())
-        b_weights = torch.tensor( [ sum(batch['label'].detach().cpu().tolist()) / b_counter[label] if b_counter[label] > 0 else 0 for label in list(range(args['num_class'])) ] )
+        b_weights = torch.tensor( [ sum(batch['label'].detach().cpu().tolist()) / b_counter[label] 
+        if b_counter[label] > 0 else 0 for label in list(range(params['num_class'])) ] )
         b_weights = b_weights.to(device)
 
         loss_function = nn.CrossEntropyLoss(weight=b_weights)
@@ -42,14 +49,23 @@ def train(model, train_loader,optimizer, ep, args, device):
         optimizer.step()
 
         loss_it.append(loss.item())
-
         _, tag_seq  = torch.max(logits, 1)
 
         correct = (tag_seq.flatten() == batch['label'].flatten()).float().sum()
         acc = correct / batch['label'].flatten().size(0)
         acc_it.append(acc.item())
 
-def inference(val_loader, model, device):
+    logging.info("Epoch %s : %s : (%s %s) (%s %s)" % (
+    str(ep), 
+    'Training', 
+    'loss', 
+    sum(loss_it)/len(loss_it), 
+    'acc', 
+    sum(acc_it) / len(acc_it))
+    )
+    return sum(loss_it)/len(loss_it)
+
+def inference(str,val_loader, model, device):
 
     """_summary_
 
@@ -63,7 +79,7 @@ def inference(val_loader, model, device):
     """
 
     model.eval()
-    loss_it, acc_it, f1_it = list(), list(), list()
+    loss_it, acc_it = list(), list()
     preds, trues = list(), list()
 
     for batch in tqdm(enumerate(val_loader),total=val_loader.__len__()):
@@ -90,46 +106,88 @@ def inference(val_loader, model, device):
 
     loss_it_avg = sum(loss_it)/len(loss_it)
     acc_it_avg = sum(acc_it)/len(acc_it)
+
+    logging.info("%s : (%s %s) (%s %s)" % (
+        str,
+        'loss', 
+        sum(loss_it)/len(loss_it), 
+        'acc', 
+        sum(acc_it) / len(acc_it))
+        )
     
     return trues, preds, loss_it_avg, acc_it_avg, loss_it, acc_it
 
 if __name__ == "__main__":
-    #params:
-    output_path = args["output_path"]
-    device = args["device"]
-    epochs = args["num_epochs"]
-    optimizer = args["optim"]
-    pretrained_vectors = args["pretrained_vectors_path"]
-    column = args["column"]
-    df = pd.read_csv(args["path_to_csv"])
-    vocab_stoi = ""
+    output_path = structure_dict["output_path"]
+
+    logging.basicConfig(filename=f'{output_path}TRAINING.log', level=logging.DEBUG)
+
+    pretrained_vectors_path = structure_dict["pretrained_vectors_path"]
+    column = structure_dict["column"]
+    labelled_df_path = structure_dict["path_to_csv"] + "labellized_df.csv"
+    logging.info("********1 IMPORT DATA ***********")
+    if not os.path.exists(labelled_df_path): 
+        logging.warning("No df processed ! Labellization of df")
+        
+    else: 
+        df = pd.read_csv(labelled_df_path)
+
+    device = params_model["device"]
+    epochs = params_model["num_epochs"]
+    optimizer = params_model["optim"]
+    lr = params_model["learning_rate"]
+    momentum = params_model["momentum"]
+    model_name = params_model["model_name"]
+    test_size = params_model["test_split"]
+
+
+    pretrained_vectors, vocab_stoi = open_pretrained_vectors(pretrained_vectors_path,drop_vectors=False)
+
     #loaddataset
+    logging.info("*****************2 : CREATE DATASET ********************")
     train_loader, val_loader, test_loader= create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3)
 
     #model
-    model = TweetModel(args)
+    if params_model["architecture"] == "arch1":
+        model = TweetModel(pretrained_vectors)
+    else:
+        model = None
+    del pretrained_vectors, vocab_stoi
+    
+    model = model.to(device)
 
     if optim == "Adam":
-        optimizer = optim.Adam(model.parameters(), lr = args['lr'])
+        optimizer = optim.Adam(model.parameters(), lr)
+    elif optim == "SGD":
+        optimizer = optim.SGD(model.parameters(), lr, momentum=momentum)
+
     val_ep_losses = list()
+    train_ep_losses = list()
     #TRAIN
+    logging.info("**************** 3 :  TRAINING**********")
     for ep in range(epochs):
-        train(model, train_loader,optimizer, ep, args, device)
-        trues, preds, val_loss_it_avg, val_acc_it_avg, val_loss_it, val_acc_it = inference(val_loader, model, device)
+ 
+        train_loss_it = train(model, train_loader,optimizer, ep, params_model, device)
+        train_ep_losses.append(train_loss_it)
+        trues, preds, val_loss_it_avg, val_acc_it_avg, val_loss_it, val_acc_it = inference("val",val_loader, model, device)
         val_ep_losses.append(val_loss_it_avg)
-        
+        plot_losses(train_ep_losses,val_ep_losses)
+
+    logging.info("END OF TRAINING **** SAVING RESULTS *****")
+
     torch.save({
                 'epoch': epochs,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict()
-                }, output_path + "model.pt")
+                }, output_path + f"{model_name}.pt")
     
     #PREDICT
-    trues, preds, loss_it_avg, acc_it_avg, loss_it, acc_it = inference(test_loader, model)
+    logging.info("**********4 : TESTING RESULTS*********")
+    trues, preds, loss_it_avg, acc_it_avg, loss_it, acc_it = inference("test",test_loader, model)
     with open(output_path + "pred.json","w") as fp:
 
         json.dump({
-            "trues":trues, 
+        "trues":trues, 
         "preds":preds, 
         "loss_it_avg":loss_it_avg, 
         "acc_it_avg":acc_it_avg, 

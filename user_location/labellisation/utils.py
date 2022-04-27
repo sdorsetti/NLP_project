@@ -4,7 +4,6 @@ from tqdm import tqdm
 
 from collections import defaultdict
 from itertools import combinations
-import logging
 
 def coocurrence(*inputs):
     """_summary_
@@ -46,37 +45,3 @@ def apply_ner(df,column, l_types = ["LOC", "GPE"]):
         doc = ner(text)
         list_.append([ent.text for ent in doc.ents if ent.label_ in l_types])
     return list_
-
-
-# def filter_ents_by_min_weight(edges, min_weight):
-#     """_summary_
-
-#     Args:
-#         edges (_type_): _description_
-#         min_weight (_type_): _description_
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     coocur_edges_filtered = defaultdict()
-#     for k1, e in edges.items():
-#         ents_over_x_weight = {k2: v for k2, v in e.items() if v['weight'] > min_weight}
-#         if ents_over_x_weight:  # ie. Not empty
-#             coocur_edges_filtered[k1] = ents_over_x_weight
-#     return coocur_edges_filtered
-
-
-# def create_coocur_edges(df,column, l_types = ["LOC", "GPE"]):
-#     """_summary_
-
-#     Args:
-#         df (_type_): _description_
-#         column (_type_): _description_
-#         l_types (list, optional): _description_. Defaults to ["LOC", "GPE"].
-
-#     Returns:
-#         _type_: _description_
-#     """
-#     logging.info("Apply NER on {}".format(column))
-#     ner = apply_ner(df, column,l_types)
-#     return coocurrence(*ner)

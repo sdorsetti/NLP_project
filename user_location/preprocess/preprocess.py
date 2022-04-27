@@ -14,7 +14,7 @@ class DataPreprocessor():
         self.data = data
         self.corpus = self.data[column].astype(str).array
     @property
-    def preprocess(self, f_hastags = remove_hashtags, threshold = 50, url = True, html = True, hashtags=True, mentions = True):
+    def preprocess(self,f_hastags = remove_hashtags, threshold = 50, url = True, html = True, hashtags=True, mentions = True):
         """_summary_
 
         Args:
@@ -49,7 +49,7 @@ class DataPreprocessor():
             clean_corpus.append(phraser[sentence])
         return [" ".join(i) for i in clean_corpus]
     
-    def get_df(self, language='en', detect_language_=True, to_csv=False):
+    def get_df(self, to_csv, language='en', detect_language_=True):
         """_summary_
 
         Args:
