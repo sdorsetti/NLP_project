@@ -1,10 +1,12 @@
-import numpy as np 
 from NLP_project.user_location.modelisation.torch_dataset import TweetDataset
-from NLP_project.user_location.config import  params_model
+from NLP_project.user_location.config import  structure_dict
+
+import numpy as np 
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import RandomOverSampler
 from nltk.tokenize import TweetTokenizer
+import json
 
 def tokenize_pad_numericalize(entry, vocab_stoi, max_length=40):
     """_summary_
@@ -61,7 +63,10 @@ def create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3):
     "test": [{"text": X_test[idx,:], "label": y_test[idx]} for idx in range(len(X_test))],
     "val": [{"text": X_val[idx,:], "label": y_val[idx]} for idx in range(len(y_val))]
     }
-
+    path_to_config = structure_dict["path_to_config"]
+    with open(path_to_config) as f:
+        params_model = json.load(f)
+        f.close()
     num_workers = params_model["num_workers"]
     train_loader = DataLoader(TweetDataset(tweets_loc['train']), batch_size=params_model['bsize'], num_workers=num_workers, shuffle=True, drop_last=True)
     val_loader   = DataLoader(TweetDataset(tweets_loc['val']), batch_size=params_model['bsize'], num_workers=num_workers, shuffle=True, drop_last=True)

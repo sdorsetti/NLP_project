@@ -1,7 +1,13 @@
-from NLP_project.user_location.config import structure_dict, params_model
+from NLP_project.user_location.config import structure_dict
 import torch
 from torchtext.vocab import vocab
 import matplotlib.pyplot as plt
+import json
+
+path_to_config = structure_dict["path_to_config"]
+with open(path_to_config) as f:
+    params_model = json.load(f)
+    f.close()
 
 def open_pretrained_vectors(path, drop_vectors = True):
     """_summary_

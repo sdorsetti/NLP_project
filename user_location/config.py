@@ -3,20 +3,6 @@ structure_dict = {
     "pretrained_vectors_path":"/content/gdrive/MyDrive/cours/ensae/NLP/pretrained_vectors.pth",
     "column": "cleaned_text",
     "path_to_csv": "/content/gdrive/MyDrive/cours/ensae/NLP/",
+    "path_to_config": "/content/gdrive/MyDrive/cours/ensae/NLP/config.json"
     
-}
-params_model  = {
-    "optim": "Adam",
-    "device": "cuda",
-    "num_workers":2,
-    'bsize': 16,
-    "test_split" :0.3,
-    "num_epochs": 100,
-    "learning_rate": 0.001,
-    "momentum": 0.9,
-    "architecture": "arch1",
-    "model_name" : "baseline",
-    "num_class": 4,
-    "hidden_dim": 300,
-    "output_dim": 4
 }

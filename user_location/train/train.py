@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import json
 from collections import Counter
-from NLP_project.user_location.config import structure_dict, params_model
+from NLP_project.user_location.config import structure_dict
 from NLP_project.user_location.modelisation.databuilder import *
 from NLP_project.user_location.modelisation.model import TweetModel
 from NLP_project.user_location.modelisation.utils import open_pretrained_vectors, plot_losses
@@ -119,6 +119,11 @@ def inference(str,val_loader, model, device):
 
 if __name__ == "__main__":
     output_path = structure_dict["output_path"]
+    path_to_config = structure_dict["path_to_config"]
+    
+    with open(path_to_config) as f:
+        params_model = json.load(f)
+        f.close()
 
     logging.basicConfig(filename=f'{output_path}TRAINING.log', level=logging.DEBUG)
 
