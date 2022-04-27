@@ -26,7 +26,7 @@ def train(model, train_loader,optimizer, ep, params, device):
     model.train()
     loss_it, acc_it = [],[]
 
-    for i,batch in tqdm(enumerate(train_loader)):
+    for i,batch in enumerate(train_loader):
 
         batch = {'text': batch['text'].to(device), 'label': batch['label'].to(device)}
         optimizer.zero_grad()
@@ -78,7 +78,7 @@ def inference(str,val_loader, model, device):
     loss_it, acc_it = list(), list()
     preds, trues = list(), list()
 
-    for i,batch in tqdm(enumerate(val_loader)):
+    for i,batch in enumerate(val_loader):
         with torch.no_grad():
 
             batch = {'text': batch['text'].to(device), 'label': batch['label'].to(device)}
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     train_ep_losses = list()
     #TRAIN
     logging.info("**************** 3 :  TRAINING**********")
-    for ep in range(epochs):
+    for ep in tqdm(range(epochs)):
 
         train_loss_it = train(model, train_loader,optimizer, ep, params_model, device)
         train_ep_losses.append(train_loss_it)
