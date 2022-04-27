@@ -1,5 +1,5 @@
 from NLP_project.user_location.preprocess.utils import *
-from NLP_project.user_location.config import args
+from NLP_project.user_location.config import structure_dict
 from tqdm import tqdm
 from nltk.tokenize import TweetTokenizer
 from gensim.models.phrases import Phrases, Phraser
@@ -72,5 +72,5 @@ class DataPreprocessor():
             df = df.drop(["language"],axis=1)
             logging.info("{} % of tweets in {}".format(df.shape[0]/shape*100, language))
         if to_csv: 
-            df.to_csv(args["output_path"] + "preprocessed_df.csv", index=False)
+            df.to_csv(structure_dict["output_path"] + "preprocessed_df.csv", index=False)
         return df
