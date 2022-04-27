@@ -4,10 +4,6 @@ from torchtext.vocab import vocab
 import matplotlib.pyplot as plt
 import json
 
-path_to_config = structure_dict["path_to_config"]
-with open(path_to_config) as f:
-    params_model = json.load(f)
-    f.close()
 
 def open_pretrained_vectors(path, drop_vectors = True):
     """_summary_
@@ -30,19 +26,19 @@ def open_pretrained_vectors(path, drop_vectors = True):
         f = None
     return f,vocab_stoi
 
-def plot_losses(loss_train, loss_val):
+def plot_losses(loss_train, loss_val, args):
     fig, ax = plt.subplots(figsize=(15,15))
     ax.plot(range(len(loss_train)),loss_train)
     ax.plot(range(len(loss_train)),loss_val)
     ax.set_xlabel("Epochs")
     ax.set_ylabel("Cross Entropy")
     a,b = 0.93,0.99
-    for u,v in params_model.items():
+    for u,v in args.items():
         plt.text(a,b, f"{str(u)} : {str(v)}",horizontalalignment='left',
         verticalalignment='top', transform = ax.transAxes, fontsize=8, color='r')
         b = b-0.02
     ax.set_title(f"LOSS AT EP {len(loss_train)}", fontsize=15)
     ax.legend(["Train","Val"])
-    fig.savefig(f'{structure_dict["output_path"]}LOSSES_{params_model["model_name"]}.png', dpi=fig.dpi)
+    fig.savefig(f'{structure_dict["output_path"]}LOSSES_{args["model_name"]}.png', dpi=fig.dpi)
 
 

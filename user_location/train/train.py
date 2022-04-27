@@ -120,7 +120,7 @@ def inference(str,val_loader, model, device):
 if __name__ == "__main__":
     output_path = structure_dict["output_path"]
     path_to_config = structure_dict["path_to_config"]
-    
+
     with open(path_to_config) as f:
         params_model = json.load(f)
         f.close()
@@ -177,7 +177,7 @@ if __name__ == "__main__":
         train_ep_losses.append(train_loss_it)
         trues, preds, val_loss_it_avg, val_acc_it_avg, val_loss_it, val_acc_it = inference("val",val_loader, model, device)
         val_ep_losses.append(val_loss_it_avg)
-        plot_losses(train_ep_losses,val_ep_losses)
+        plot_losses(train_ep_losses,val_ep_losses, params_model)
 
     logging.info("END OF TRAINING **** SAVING RESULTS *****")
 
