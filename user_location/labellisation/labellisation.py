@@ -9,7 +9,7 @@ import logging
 from nltk.tokenize import TweetTokenizer
 from geopy.geocoders import Nominatim
 
-logging.basicConfig(filename='labelizer.log', level=logging.DEBUG)
+
 
 class Labelizer():
     def __init__(self, df:pd.DataFrame, column:str, langage = False):
@@ -103,8 +103,7 @@ class Labelizer():
         Returns:
             _type_: _description_
         """
-        logging.info("creating coocurences edges")
-
+        logging.basicConfig(filename='labelizer.log', level=logging.DEBUG)
         #Process df with a NER
         ner = self.apply_ner_
         df = self.drop_unexistent_locations(ner)
