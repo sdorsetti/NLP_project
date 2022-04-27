@@ -1,4 +1,4 @@
-loss_train = {
+structure_dict = {
     "output_path": "/content/gdrive/MyDrive/cours/ensae/NLP/output/",
     "pretrained_vectors_path":"/content/gdrive/MyDrive/cours/ensae/NLP/pretrained_vectors.pth",
     "column": "cleaned_text",
