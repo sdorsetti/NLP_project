@@ -7,11 +7,11 @@ structure_dict = {
 }
 params_model  = {
     "optim": "Adam",
-    "device": "cpu",
+    "device": "cuda",
     "num_workers":2,
     'bsize': 16,
     "test_split" :0.3,
-    "num_epochs": 2,
+    "num_epochs": 100,
     "learning_rate": 0.001,
     "momentum": 0.9,
     "architecture": "arch1",

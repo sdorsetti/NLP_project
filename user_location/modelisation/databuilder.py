@@ -7,22 +7,22 @@ from imblearn.over_sampling import RandomOverSampler
 from nltk.tokenize import TweetTokenizer
 
 def tokenize_pad_numericalize(entry, vocab_stoi, max_length=40):
-  """_summary_
+    """_summary_
 
-  Args:
-      entry (_type_): _description_
-      vocab_stoi (_type_): _description_
-      max_length (int, optional): _description_. Defaults to 40.
+    Args:
+        entry (_type_): _description_
+        vocab_stoi (_type_): _description_
+        max_length (int, optional): _description_. Defaults to 40.
 
-  Returns:
-      _type_: _description_
-  """
-  text = [vocab_stoi[token] if token in vocab_stoi else vocab_stoi['<unk>'] for token in entry]
-  padded_text = None
-  if len(text) < max_length:   padded_text = text + [ vocab_stoi['<pad>'] for i in range(len(text), max_length) ] 
-  elif len(text) > max_length: padded_text = text[:max_length]
-  else:                        padded_text = text
-  return padded_text
+    Returns:
+        _type_: _description_
+    """
+    text = [vocab_stoi[token] if token in vocab_stoi else vocab_stoi['<unk>'] for token in entry]
+    padded_text = None
+    if len(text) < max_length:   padded_text = text + [ vocab_stoi['<pad>'] for i in range(len(text), max_length) ] 
+    elif len(text) > max_length: padded_text = text[:max_length]
+    else:                        padded_text = text
+    return padded_text
 
 def create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3):
     """_summary_
@@ -68,5 +68,6 @@ def create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3):
     test_loader  = DataLoader(TweetDataset(tweets_loc['test']), batch_size=params_model['bsize'], num_workers=num_workers, shuffle=True, drop_last=True)
 
     return train_loader, val_loader, test_loader
+
 
 

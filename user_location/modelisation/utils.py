@@ -1,4 +1,4 @@
-from modelisation.config import structure_dict, params_model
+from NLP_project.user_location.config import structure_dict, params_model
 import torch
 from torchtext.vocab import vocab
 import matplotlib.pyplot as plt

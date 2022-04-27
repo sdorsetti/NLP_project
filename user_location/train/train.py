@@ -30,8 +30,8 @@ def train(model, train_loader,optimizer, ep, params, device):
     model.train()
     loss_it, acc_it = [],[]
 
-    for batch in tqdm(enumerate(train_loader), desc="Epoch %s:" % (ep), total=train_loader.__len__()):
-        
+    for i,batch in tqdm(enumerate(train_loader)):
+
         batch = {'text': batch['text'].to(device), 'label': batch['label'].to(device)}
         optimizer.zero_grad()
         logits = model(batch['text'])
@@ -82,14 +82,17 @@ def inference(str,val_loader, model, device):
     loss_it, acc_it = list(), list()
     preds, trues = list(), list()
 
-    for batch in tqdm(enumerate(val_loader),total=val_loader.__len__()):
+    for i,batch in tqdm(enumerate(val_loader)):
         with torch.no_grad():
 
             batch = {'text': batch['text'].to(device), 'label': batch['label'].to(device)}
             logits = model(batch['text'])
             
             b_counter = Counter(batch['label'].detach().cpu().tolist())
-            b_weights = torch.tensor( [ sum(batch['label'].detach().cpu().tolist()) / b_counter[label] if b_counter[label] > 0 else 0 for label in list(range(20)) ] )
+            b_weights = torch.tensor( [ sum(batch['label'].detach().cpu().tolist()) / b_counter[label] 
+                                       if b_counter[label] > 0 else 0 
+                                       for label in list(range(params_model["num_class"])) ] )
+            
             b_weights = b_weights.to(device)
 
             loss_function = nn.CrossEntropyLoss(weight=b_weights)
@@ -117,6 +120,7 @@ def inference(str,val_loader, model, device):
     
     return trues, preds, loss_it_avg, acc_it_avg, loss_it, acc_it
 
+
 if __name__ == "__main__":
     output_path = structure_dict["output_path"]
 
@@ -139,26 +143,27 @@ if __name__ == "__main__":
     momentum = params_model["momentum"]
     model_name = params_model["model_name"]
     test_size = params_model["test_split"]
+    optimiz = params_model["optim"]
 
-
-    pretrained_vectors, vocab_stoi = open_pretrained_vectors(pretrained_vectors_path,drop_vectors=False)
 
     #loaddataset
     logging.info("*****************2 : CREATE DATASET ********************")
+    pretrained_vectors, vocab_stoi = open_pretrained_vectors(pretrained_vectors_path,drop_vectors=False)
+
     train_loader, val_loader, test_loader= create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3)
 
     #model
     if params_model["architecture"] == "arch1":
-        model = TweetModel(pretrained_vectors)
+        model = TweetModel(params_model,pretrained_vectors.vectors)
     else:
         model = None
     del pretrained_vectors, vocab_stoi
-    
+
     model = model.to(device)
 
-    if optim == "Adam":
+    if optimiz == "Adam":
         optimizer = optim.Adam(model.parameters(), lr)
-    elif optim == "SGD":
+    elif optimiz == "SGD":
         optimizer = optim.SGD(model.parameters(), lr, momentum=momentum)
 
     val_ep_losses = list()
@@ -166,7 +171,7 @@ if __name__ == "__main__":
     #TRAIN
     logging.info("**************** 3 :  TRAINING**********")
     for ep in range(epochs):
- 
+
         train_loss_it = train(model, train_loader,optimizer, ep, params_model, device)
         train_ep_losses.append(train_loss_it)
         trues, preds, val_loss_it_avg, val_acc_it_avg, val_loss_it, val_acc_it = inference("val",val_loader, model, device)
@@ -180,10 +185,9 @@ if __name__ == "__main__":
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict()
                 }, output_path + f"{model_name}.pt")
-    
     #PREDICT
     logging.info("**********4 : TESTING RESULTS*********")
-    trues, preds, loss_it_avg, acc_it_avg, loss_it, acc_it = inference("test",test_loader, model)
+    trues, preds, loss_it_avg, acc_it_avg, loss_it, acc_it = inference("test",test_loader, model, device)
     with open(output_path + "pred.json","w") as fp:
 
         json.dump({
