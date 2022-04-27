@@ -36,8 +36,7 @@ def plot_losses(loss_train, loss_val):
         verticalalignment='top', transform = ax.transAxes, fontsize=8, color='r')
         b = b-0.02
     ax.set_title(f"LOSS AT EP {len(loss_train)}", fontsize=15)
-
     ax.legend(["Train","Val"])
-    fig.savefig(f'{structure_dict["output_path"]}LOSSES.png', dpi=fig.dpi)
+    fig.savefig(f'{structure_dict["output_path"]}LOSSES_{params_model["model_name"]}.png', dpi=fig.dpi)
 
 
