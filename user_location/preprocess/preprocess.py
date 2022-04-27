@@ -6,8 +6,6 @@ from gensim.models.phrases import Phrases, Phraser
 import pandas as pd
 import logging
 
-logging.basicConfig(filename='preprocessor.log', level=logging.DEBUG)
-
 class DataPreprocessor():
     def __init__(self, data:pd.DataFrame, column: str):
         self.column = column

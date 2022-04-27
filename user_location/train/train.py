@@ -5,13 +5,9 @@ import torch.nn as nn
 import torch.optim as optim
 import json
 from collections import Counter
-
-from typer import Exit
-
-from modelisation.config import structure_dict, params_model
-from modelisation.databuilder import *
-from modelisation.model import TweetModel
-
+from NLP_project.user_location.config import structure_dict, params_model
+from NLP_project.user_location.modelisation.databuilder import *
+from NLP_project.user_location.modelisation.model import TweetModel
 from NLP_project.user_location.modelisation.utils import open_pretrained_vectors, plot_losses
 
 import logging

@@ -16,6 +16,7 @@ params_model  = {
     "momentum": 0.9,
     "architecture": "arch1",
     "model_name" : "baseline",
-    "num_class": 4
-
+    "num_class": 4,
+    "hidden_dim": 300,
+    "output_dim": 4
 }
