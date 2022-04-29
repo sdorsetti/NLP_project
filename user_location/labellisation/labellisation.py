@@ -1,7 +1,7 @@
 from NLP_project.user_location.labellisation.dic_label import d
 from NLP_project.user_location.labellisation.utils import coocurrence, apply_ner
 from NLP_project.user_location.config import structure_dict
-from NLP_project.user_location.preprocess.preprocess import DataPreprocessor
+from NLP_project.preprocess.preprocess import DataPreprocessor
 import os
 import json
 import pandas as pd
