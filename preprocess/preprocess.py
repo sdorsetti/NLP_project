@@ -1,4 +1,4 @@
-from NLP_project.user_location.preprocess.utils import *
+from NLP_project.preprocess.utils import *
 from NLP_project.user_location.config import structure_dict
 from tqdm import tqdm
 from nltk.tokenize import TweetTokenizer
@@ -47,7 +47,7 @@ class DataPreprocessor():
             clean_corpus.append(phraser[sentence])
         return [" ".join(i) for i in clean_corpus]
     
-    def get_df(self, to_csv, language='en', detect_language_=True):
+    def get_df(self, to_csv, language='en', detect_language_=True, remove_emojis=False):
         """_summary_
 
         Args:
@@ -60,6 +60,9 @@ class DataPreprocessor():
         
         logging.info("****PREPROCESSING COLUMN {} OF TWEETS DF".format(self.column))
         df = self.data.copy()
+        if remove_emojis : 
+            df[self.column] = df[self.column].apply(lambda x : str(remove_emoji(x)))
+
         df["cleaned_{}".format(self.column)] = self.preprocess
         if detect_language_:
             logging.info("language detection")

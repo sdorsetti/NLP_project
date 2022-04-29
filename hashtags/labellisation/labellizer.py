@@ -1,15 +1,10 @@
-from NLP_project.user_location.labellisation.dic_label import d
-from NLP_project.user_location.labellisation.utils import coocurrence, apply_ner
-from NLP_project.user_location.config import structure_dict
-from NLP_project.preprocess.preprocess import DataPreprocessor
-import os
-import json
+from NLP_project.preprocess import DataPreprocessor 
+from NLP_project.labellisation.utils import *
+from collections import Counter
+import logging 
 import pandas as pd
-import logging
-from nltk.tokenize import TweetTokenizer
-from geopy.geocoders import Nominatim
-
-
+import ast
+import os
 
 class Labelizer():
     def __init__(self, df:pd.DataFrame, column:str, langage = False):
@@ -20,12 +15,10 @@ class Labelizer():
             column (str): _description_
         """
         self.column = column
-        try: 
-            df[column]
-            self.df = df
-        except:  
-            dp = DataPreprocessor(df,column.split('cleaned_')[-1])
-            self.df = dp.get_df(detect_language_=langage)
+        self.df= df
+        self.__lsttag = None
+            
+
     @property
     def apply_ner_(self):
       """
@@ -50,7 +43,7 @@ class Labelizer():
         logging.info("{} % of false locations **** Final size of df {}".format(df.shape[0]/shape*100, df.shape[0]))
         return df
 
-    def label_data(self,string_,d,history):
+    def label_location(self,string_,d,history):
         """_summary_
 
         Args:
@@ -90,8 +83,21 @@ class Labelizer():
               return "Location Not In Dic"
             else : 
               return "Multiple Location"
-       
     
+    @property
+    def count_hastags(self):
+        if self.__lsttag == None:
+            lst=[]
+            for i in range(self.df.shape[0]):
+                    lst.append(ast.literal_eval(self.df[self.column].iloc[i]))
+        
+            lst_hash =[item.lower() for sublist in lst for item in sublist]
+            
+            count= Counter(lst_hash)
+            nb_occ= count.most_common(20)
+            self.__lsttag = [i[0] for i in nb_occ]
+        return self.__lsttag
+                        
     def get_df(self, to_csv=True,d = d):
         """
 
@@ -104,25 +110,36 @@ class Labelizer():
             _type_: _description_
         """
         logging.basicConfig(filename='labelizer.log', level=logging.DEBUG)
-        #Process df with a NER
-        ner = self.apply_ner_
-        df = self.drop_unexistent_locations(ner)
+        if self.column == "user_location":
 
-        path = structure_dict["output_path"]
-        if os.path.exists(path): 
-            with open(f"{path}history.json") as f:
-                history = json.load(f)
-        else : 
-            history = {}            
+            #Process df with a NER
+            ner = self.apply_ner_
+            df = self.drop_unexistent_locations(ner)
 
-        logging.info("LABELLISATION")
-        df["label"] = df["ner"].progress_apply(lambda x : self.label_data(x[-1], d, history))
-        df = df.drop(["ner"], axis=1)
+            path = structure_dict["output_path"]
+            if os.path.exists(path): 
+                with open(f"{path}history.json") as f:
+                    history = json.load(f)
+            else : 
+                history = {}            
 
-        shape = df.shape[0]
-        df = df[df["label"].isin(list(d.keys()))]
+            logging.info("LABELLISATION")
+            df["label"] = df["ner"].progress_apply(lambda x : self.label_data(x[-1], d, history))
+            df = df.drop(["ner"], axis=1)
 
-        logging.info("{} % of unlabelled data **** Final size of df {}".format((1 - (df.shape[0]/shape))*100, df.shape[0]))  
-        if to_csv: 
-            df.to_csv(structure_dict["path_to_csv"] + "labellized_df.csv", index=False)
-        return df
+            shape = df.shape[0]
+            df = df[df["label"].isin(list(d.keys()))]
+
+            logging.info("{} % of unlabelled data **** Final size of df {}".format((1 - (df.shape[0]/shape))*100, df.shape[0]))  
+            if to_csv: 
+                df.to_csv(structure_dict["path_to_csv"] + "labellized_df.csv", index=False)
+            self.df = df
+            return self.df
+        elif self.column == "hashtags":
+            df = self.df.copy()
+            df['label'] = df['hashtags'].apply(lambda x : find_common_hash(x.lower()))
+            df["label"] = df["hashtags"].apply(lambda x : regroup_hash(x))
+            df["label"] = df['label'].apply(lambda x : sorted(x))
+
+            
+
