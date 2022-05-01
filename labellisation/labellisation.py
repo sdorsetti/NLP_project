@@ -100,7 +100,7 @@ class Labelizer():
             self.__lsttag = [i[0] for i in nb_occ]
         return self.__lsttag
                         
-    def get_df(self, to_csv=True,shp = shp):
+    def get_df(self, to_csv=True, shp=None):
         """
 
         Args:
