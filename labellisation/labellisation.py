@@ -120,12 +120,12 @@ class Labelizer():
             ner = self.apply_ner_
             df = self.drop_unexistent_locations(ner)
 
-            path = structure_dict["output_path"]
-            if os.path.exists(path): 
+            path = structure_dict["path_to_csv"]
+            if os.path.exists(f"{path}history.json"): 
                 with open(f"{path}history.json") as f:
                     history = json.load(f)
             else : 
-                history = {}            
+                history = {}             
 
             logging.info("LABELLISATION")
             df["label"] = df["ner"].progress_apply(lambda x : self.label_data(x[-1], d, history))
