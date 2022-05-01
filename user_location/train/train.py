@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     pretrained_vectors_path = structure_dict["pretrained_vectors_path"]
     column = structure_dict["column"]
-    labelled_df_path = structure_dict["path_to_csv"] + "labellized_df.csv"
+    labelled_df_path = structure_dict["path_to_csv"] + "labellized_user_location_df.csv"
     logging.info("********1 IMPORT DATA ***********")
     if not os.path.exists(labelled_df_path): 
         logging.warning("No df processed ! Labellization of df")
