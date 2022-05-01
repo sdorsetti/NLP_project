@@ -134,7 +134,7 @@ class Labelizer():
             df = df.drop(["ner"], axis=1)
 
             shape = df.shape[0]
-            df = df[df["label"].isin(list(d.keys()))]
+            df = df[df["label"].isin(list(shp.continent))]
 
             logging.info("{} % of unlabelled data **** Final size of df {}".format((1 - (df.shape[0]/shape))*100, df.shape[0]))  
             if to_csv: 
