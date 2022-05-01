@@ -128,7 +128,6 @@ if __name__ == "__main__":
     logging.basicConfig(filename=f'{output_path}TRAINING.log', level=logging.DEBUG)
 
     pretrained_vectors_path = structure_dict["pretrained_vectors_path"]
-    column = structure_dict["column"]
     labelled_df_path = structure_dict["path_to_csv"] + "labellized_user_location_df.csv"
     logging.info("********1 IMPORT DATA ***********")
     if not os.path.exists(labelled_df_path): 
@@ -145,6 +144,7 @@ if __name__ == "__main__":
     model_name = params_model["model_name"]
     test_size = params_model["test_split"]
     optimiz = params_model["optim"]
+    column = params_model["column"]
 
 
     #loaddataset
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     #PREDICT
     logging.info("**********4 : TESTING RESULTS*********")
     trues, preds, loss_it_avg, acc_it_avg, loss_it, acc_it = inference("test",test_loader, model, device)
-    with open(output_path + "pred.json","w") as fp:
+    with open(f"{output_path}pred_{model_name}.json","w") as fp:
 
         json.dump({
         "trues":trues, 
