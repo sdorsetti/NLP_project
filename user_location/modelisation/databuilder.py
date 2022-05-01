@@ -45,6 +45,7 @@ def create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3,ner=F
     if ner:
         l = apply_ner(df,column, l_types = ["LOC","GPE","PERSON","LANGUAGE"])
         l_ = list(map(replace_empty, l))
+        l_ = [" ".join(x) for x in l_]
         df[column] = l_
 
     max_length = df[column].apply(lambda x : len(tok.tokenize(x))).max()
