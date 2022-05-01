@@ -1,5 +1,5 @@
 from NLP_project.user_location.modelisation.torch_dataset import TweetDataset
-from NLP_project.user_location.config import  structure_dict
+from NLP_project.config import  structure_dict
 
 import numpy as np 
 from torch.utils.data import DataLoader

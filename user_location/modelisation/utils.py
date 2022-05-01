@@ -1,4 +1,4 @@
-from NLP_project.user_location.config import structure_dict
+from NLP_project.config import structure_dict
 import torch
 from torchtext.vocab import vocab
 import matplotlib.pyplot as plt

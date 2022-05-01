@@ -1,5 +1,5 @@
 from NLP_project.preprocess.utils import *
-from NLP_project.user_location.config import structure_dict
+from NLP_project.config import structure_dict
 from tqdm import tqdm
 from nltk.tokenize import TweetTokenizer
 from gensim.models.phrases import Phrases, Phraser

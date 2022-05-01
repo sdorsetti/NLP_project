@@ -5,7 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import json
 from collections import Counter
-from NLP_project.user_location.config import structure_dict
+from NLP_project.config import structure_dict
 from NLP_project.user_location.modelisation.databuilder import *
 from NLP_project.user_location.modelisation.model import TweetModel
 from NLP_project.user_location.modelisation.utils import open_pretrained_vectors, plot_losses
