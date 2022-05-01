@@ -128,7 +128,7 @@ class Labelizer():
                 history = {}             
 
             logging.info("LABELLISATION")
-            df["label"] = df["ner"].progress_apply(lambda x : self.label_data(x[-1], d, history))
+            df["label"] = df["ner"].progress_apply(lambda x : self.label_location(x[-1], d, history))
             df = df.drop(["ner"], axis=1)
 
             shape = df.shape[0]
