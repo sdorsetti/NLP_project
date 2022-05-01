@@ -81,6 +81,10 @@ class Labelizer():
 
             if len(label)>0:
               history[string_] = label[0] 
+              path = structure_dict["path_to_csv"]
+              with open(f"{path}history.json", 'w') as fp:
+                json.dump(history, fp)
+
               return label[0]
             elif len(label) == 0:
               return "Location not in labels"
