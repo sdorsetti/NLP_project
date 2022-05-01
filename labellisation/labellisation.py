@@ -4,6 +4,7 @@ from NLP_project.config import structure_dict
 from nltk.tokenize import TweetTokenizer
 from geopy.geocoders import Nominatim
 from collections import Counter
+from shapely.geometry import Point, Polygon
 import logging 
 import pandas as pd
 import ast
@@ -47,7 +48,7 @@ class Labelizer():
         logging.info("{} % of false locations **** Final size of df {}".format(df.shape[0]/shape*100, df.shape[0]))
         return df
 
-    def label_location(self,string_,d,history):
+    def label_location(self,string_,shp,history):
         """_summary_
 
         Args:
@@ -69,25 +70,22 @@ class Labelizer():
             location = geolocator.geocode(string_)
           except : 
             location = None
-          
-          
-          tok = TweetTokenizer()
+
 
           if location == None: 
             return "Unknown"
           else:
-            location = location[-2].split(',')[-1].lower()
-            location = tok.tokenize(location)[0]
-            
-            final = [label for label, region in d.items() if location in region]
-            if len(final)== 1: 
-              history[string_] = final[0]
-              return final[0]
-            elif len(final) == 0:
-              return "Location Not In Dic"
-            else : 
-              return "Multiple Location"
-    
+            location = location[-1]            
+            location = Point(location.longitude, location.latitude)
+
+            label = [continent for continent,poly in zip(shp.continent,shp.geometry) if location.within(poly)]
+
+            if len(label)>0:
+              return label[0]
+            elif len(label) == 0:
+              return "Location not in labels"
+           
+           
     @property
     def count_hashtags(self):
         if self.__lsttag == None:
@@ -102,7 +100,7 @@ class Labelizer():
             self.__lsttag = [i[0] for i in nb_occ]
         return self.__lsttag
                         
-    def get_df(self, to_csv=True,d = d):
+    def get_df(self, to_csv=True,shp = shp):
         """
 
         Args:
@@ -128,7 +126,7 @@ class Labelizer():
                 history = {}             
 
             logging.info("LABELLISATION")
-            df["label"] = df["ner"].progress_apply(lambda x : self.label_location(x[-1], d, history))
+            df["label"] = df["ner"].progress_apply(lambda x : self.label_location(x[-1], shp, history))
             df = df.drop(["ner"], axis=1)
 
             shape = df.shape[0]
