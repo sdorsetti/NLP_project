@@ -74,13 +74,13 @@ class Labelizer():
 
           if location == None: 
             return "Unknown"
-          else:
-            location = location[-1]            
+          else:          
             location = Point(location.longitude, location.latitude)
 
             label = [continent for continent,poly in zip(shp.continent,shp.geometry) if location.within(poly)]
 
             if len(label)>0:
+              history[string_] = label[0] 
               return label[0]
             elif len(label) == 0:
               return "Location not in labels"
