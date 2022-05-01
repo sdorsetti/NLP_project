@@ -39,9 +39,7 @@ def apply_ner(df,column, l_types = ["LOC", "GPE"]):
 
     list_ = []
     ner = spacy.load("en_core_web_sm")
-    i=0
     for text in tqdm(df[column].astype(str)):
-        i += 1
         doc = ner(text)
         list_.append([ent.text for ent in doc.ents if ent.label_ in l_types])
     return list_

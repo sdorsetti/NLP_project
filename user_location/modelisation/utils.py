@@ -5,6 +5,13 @@ import matplotlib.pyplot as plt
 import json
 
 
+def replace_empty(x):
+  if len(x)==0:
+    return ["No Subject"]
+  else : 
+    return x
+
+
 def open_pretrained_vectors(path, drop_vectors = True):
     """_summary_
 

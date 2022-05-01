@@ -145,13 +145,19 @@ if __name__ == "__main__":
     test_size = params_model["test_split"]
     optimiz = params_model["optim"]
     column = params_model["column"]
+    ner = params_model["ner"]
+
+    if ner == "ner":
+        ner=True
+    else : 
+        ner=False
 
 
     #loaddataset
     logging.info("*****************2 : CREATE DATASET ********************")
     pretrained_vectors, vocab_stoi = open_pretrained_vectors(pretrained_vectors_path,drop_vectors=False)
 
-    train_loader, val_loader, test_loader= create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3)
+    train_loader, val_loader, test_loader= create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3, ner=ner)
 
     #model
     if params_model["architecture"] == "arch1":

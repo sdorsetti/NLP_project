@@ -1,12 +1,14 @@
 from NLP_project.user_location.modelisation.torch_dataset import TweetDataset
 from NLP_project.config import  structure_dict
-
+from NLP_project.labellisation.utils import apply_ner
+from NLP_project.user_location.modelisation.utils import replace_empty
 import numpy as np 
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import RandomOverSampler
 from nltk.tokenize import TweetTokenizer
 import json
+
 
 def tokenize_pad_numericalize(entry, vocab_stoi, max_length=40):
     """_summary_
@@ -26,7 +28,7 @@ def tokenize_pad_numericalize(entry, vocab_stoi, max_length=40):
     else:                        padded_text = text
     return padded_text
 
-def create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3):
+def create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3,ner=False):
     """_summary_
 
     Args:
@@ -40,6 +42,11 @@ def create_dataset(df,column, vocab_stoi,over_sampling=True, test_size=0.3):
         _type_: _description_
     """
     tok = TweetTokenizer()
+    if ner:
+        l = apply_ner(df,column, l_types = ["LOC","GPE","PERSON","LANGUAGE"])
+        l_ = list(map(replace_empty, l))
+        df[column] = l_
+
     max_length = df[column].apply(lambda x : len(tok.tokenize(x))).max()
     #   _,vocab_stoi = open_pretrained_vectors(path_to_pretrained_vectors)
     X = np.vstack(np.array(df[column].apply(lambda x : tokenize_pad_numericalize(x, vocab_stoi,max_length))))
