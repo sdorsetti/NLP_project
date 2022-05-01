@@ -34,3 +34,18 @@ class TweetModel(nn.Module):
         h  = self.classification_layer(h)
         logits = self.softmax(h)
         return logits
+
+class MergedModel(nn.Module):
+    def __init__(self, modelA, modelB):
+        super(MergedModel, self).__init__()
+        self.modelA = modelA
+        self.modelB = modelB
+        self.classifier =  nn.Softmax(dim=1)
+        
+    def forward(self, x1, x2):
+        x1 = self.modelA(x1)
+        x2 = self.modelB(x2)
+        x = torch.cat((x1, x2), dim=1)
+        x = self.classifier(torch.relu(x))
+        logits = self.classifier(x)
+        return logits

@@ -7,11 +7,12 @@ import json
 from collections import Counter
 from NLP_project.config import structure_dict
 from NLP_project.user_location.modelisation.databuilder import *
-from NLP_project.user_location.modelisation.model import TweetModel
+from NLP_project.user_location.modelisation.model import TweetModel,MergedModel
 from NLP_project.user_location.modelisation.utils import open_pretrained_vectors, plot_losses
 
 import logging
 import os
+
 
 def train(model, train_loader,optimizer, ep, params, device):
 
@@ -162,8 +163,15 @@ if __name__ == "__main__":
     #model
     if params_model["architecture"] == "arch1":
         model = TweetModel(params_model,pretrained_vectors.vectors)
-    else:
-        model = None
+    elif params_model["architecture"]=="merged":
+        modelA = TweetModel(params_model,pretrained_vectors.vectors)
+        modelB = TweetModel(params_model,pretrained_vectors.vectors)
+
+        modelA.load_state_dict(torch.load(output_path + f"ner_text.pt"))
+        modelB.load_state_dict(torch.load(output_path + f"ner_user_decription.pt"))
+
+        model = MergedModel(modelA, modelB)
+
     del pretrained_vectors, vocab_stoi
 
     model = model.to(device)
