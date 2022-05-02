@@ -14,3 +14,7 @@ Finally, the shapefiles of the world boundaries are mandatory. They are also pus
 Once these settings done, it is easy to use the repository and the notebook associated. It will store the results into the path written in the structure dict.
 
 
+************
+THE SHARED COLAB WITH FULL RIGHT CAN BE ACCESSED TROOUGH THIS LINK 
+https://colab.research.google.com/drive/1EnKuPLVvHGfaObWxqXI6E4XYkcK6FQXn?usp=sharing
+**************

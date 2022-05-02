@@ -1,9 +1,9 @@
 from NLP_project.config import structure_dict
 import torch
-from torchtext.vocab import vocab
+from torchtext.vocab import FastText, vocab
 import matplotlib.pyplot as plt
 import json
-
+import os
 
 def replace_empty(x):
   if len(x)==0:
@@ -22,6 +22,11 @@ def open_pretrained_vectors(path, drop_vectors = True):
     Returns:
         _type_: _description_
     """
+
+    if not os.path.exists(path):
+        pretrained_vectors = FastText(language='en')
+        torch.save(pretrained_vectors, path)
+
     f = torch.load(path)
     vocab_stoi = vocab(f.stoi)
     unk_index = 0
