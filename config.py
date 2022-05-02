@@ -1,7 +1,7 @@
 structure_dict = {
-    "output_path": "/content/gdrive/MyDrive/cours/ensae/NLP/output/",
+    "output_path": "/content/NLP_project/data/output/",
     "pretrained_vectors_path":"/content/gdrive/MyDrive/cours/ensae/NLP/pretrained_vectors.pth",
-    "path_to_csv": "/content/gdrive/MyDrive/cours/ensae/NLP/",
-    "path_to_config": "/content/gdrive/MyDrive/cours/ensae/NLP/config.json"
+    "path_to_csv": "/content/NLP_project/data/",
+    "path_to_config": "/content/NLP_project/data/"
     
 }

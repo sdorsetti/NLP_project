@@ -6,10 +6,16 @@ from spacymoji import Emoji
 stemmer = SnowballStemmer("english")
 
 def removeStopWords(sentence):
+    """
+    removes stopwords of the sentence
+    """
     global re_stop_words
     return re_stop_words.sub(" ", sentence)
 
 def stemming(sentence):
+    """
+    
+    """
     stemSentence = ""
     for word in sentence.split():
         stem = stemmer.stem(word)
